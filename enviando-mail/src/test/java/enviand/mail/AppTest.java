@@ -149,7 +149,8 @@ public class AppTest {
 															"Nelson - Programador em Java", 
 															"Email enviado através do java",
 															stringBuilderTextoEmail.toString());
-		enviaEmail.enviarEmail(true);
+		//enviaEmail.enviarEmail(true);
+		enviaEmail.enviarEmailAnexo(true);
 		
 		
 		

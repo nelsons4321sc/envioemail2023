@@ -1,8 +1,11 @@
 package enviand.mail;
 
+import java.awt.Window.Type;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /*
  * LINK COM DICAS PARA CONSEGUIR ENVIAR EMAIL PELO JAVA APARTIR DO GMAIL 
@@ -19,14 +22,21 @@ import java.io.FileOutputStream;
 
 import java.util.Properties;
 
+import javax.activation.DataHandler;
 import javax.mail.Address;
 import javax.mail.Authenticator;
 import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+import javax.swing.plaf.multi.MultiPanelUI;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Paragraph;
@@ -95,8 +105,71 @@ public class ObjetoEnviaEmail {
 		// Thread.sleep(5000);
 	}
 	
+	
+	public void enviarEmailAnexo(boolean envioHtml) throws Exception {
+
+		Properties properties = new Properties();
+
+		properties.put("mail.smtp.ssl.trust", "*");
+		properties.put("mail.smtp.auth", "true");
+		properties.put("mail.smtp.starttls", "true");
+		properties.put("mail.smtp.host", "smtp.gmail.com");
+		properties.put("mail.smtp.port", "465");
+		properties.put("mail.smtp.socketFactory.port", "465");
+		properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+
+		Session session = Session.getInstance(properties, new Authenticator() {
+			@Override
+			protected PasswordAuthentication getPasswordAuthentication() {
+
+				return new PasswordAuthentication(userName, senha);
+			}
+
+		});
+
+		Address[] toUser = InternetAddress.parse("nelsonsouto16@gmail.com, nelsonscosta@yahoo.com.br, nelsonscosta@aol.com");
+		//Address[] toUser = InternetAddress.parse(listaDestinatário);
+
+		Message message = new MimeMessage(session);
+
+		//message.setFrom(new InternetAddress(userName, "Nelson - Programador em Java"));
+		message.setFrom(new InternetAddress(userName, nomeRemetente));
+		message.setRecipients(Message.RecipientType.TO, toUser);//quem estou enviando
+		//message.setSubject("Chegou email enviado com java");//Assunto do e-mail
+		message.setSubject(assuntoEmail); // Assunto do e-mail
+		
+		if(envioHtml) {
+			message.setContent(textoEmail, "text/html; charset=utf-8");
+		} else {
+			message.setText(textoEmail);
+		}
+		
+		MimeBodyPart corpoEmail = new MimeBodyPart();
+		
+		if(envioHtml) {
+			corpoEmail.setContent(textoEmail, "text/html; charset=utf-8");
+		} else {
+			corpoEmail.setText(textoEmail);
+		}
+		
+		
+		MimeBodyPart anexoEmail = new MimeBodyPart();
+		
+		anexoEmail.setDataHandler(new DataHandler(new ByteArrayDataSource(simuladorPDF(), "application/pdf")));
+		anexoEmail.setFileName("anexoemail.pdf");
+		
+		Multipart multipart = new MimeMultipart();
+		multipart.addBodyPart(corpoEmail);
+		multipart.addBodyPart(anexoEmail);
+		
+		message.setContent(multipart);
+
+		 Transport.send(message);
+		// Thread.sleep(5000);
+	}
+	
 	/*
-	 * Metodo que simula um PDF ou qualquer arquivo que possa sewr enviado por anexo no email
+	 * Esse Metodo simula um PDF ou qualquer arquivo que possa sewr enviado por anexo no email
 	 * Pode estar em um BD ou uma pasta
 	 * 
 	 * Retorna um PDF em branco com o texto do Prágrafo
@@ -117,3 +190,5 @@ public class ObjetoEnviaEmail {
 		
 	}
 }
+
+

@@ -1,5 +1,9 @@
 package enviand.mail;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 /*
  * LINK COM DICAS PARA CONSEGUIR ENVIAR EMAIL PELO JAVA APARTIR DO GMAIL 
  * https://support.google.com/accounts/answer/185833?hl=pt-BR
@@ -23,6 +27,10 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 
 public class ObjetoEnviaEmail {
 
@@ -85,5 +93,27 @@ public class ObjetoEnviaEmail {
 
 		Transport.send(message);
 		// Thread.sleep(5000);
+	}
+	
+	/*
+	 * Metodo que simula um PDF ou qualquer arquivo que possa sewr enviado por anexo no email
+	 * Pode estar em um BD ou uma pasta
+	 * 
+	 * Retorna um PDF em branco com o texto do Prágrafo
+	 */
+	
+	private FileInputStream simuladorPDF() throws Exception {
+		
+		Document document = new Document();
+		File file = new File("fileAnexo.pdf");
+		file.createNewFile();
+		//document será o conteúdo do file
+		PdfWriter.getInstance(document, new FileOutputStream(file));
+		document.open();
+		document.add(new Paragraph("Conteúdo do PDF"));
+		document.close();
+		
+		return new FileInputStream(file);
+		
 	}
 }
